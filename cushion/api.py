@@ -1,7 +1,5 @@
 import httplib2
-import simplejson as json
 from urllib import urlencode
-from functools import partial
 
 class RequestFactory(object):
     """
@@ -50,11 +48,13 @@ class DocumentRequest(object):
 
     @property
     def method(self):
+        """return the http method"""
         if(len(self.uri_parts)):
             return self.uri_parts[0].upper()
 
     @property
     def uri(self):
+        """Create the URI with the parameters"""
         elements = []
         elements.append(self.http_client.base_uri)
         for i in self.uri_parts[1:]:
