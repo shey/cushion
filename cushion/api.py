@@ -1,7 +1,7 @@
 import httplib2
 import simplejson as json
 from urllib import urlencode
-
+from functools import partial
 
 class RequestFactory(object):
     """
@@ -36,11 +36,6 @@ class RequestFactory(object):
         )
         return document_request
 
-class PlaceHolderRequest(object):
-    def __init__(self, *args):
-        pass
-    def __call__(self, *args):
-        return ('a', 'b')
 
 class DocumentRequest(object):
     def __init__(
@@ -70,11 +65,13 @@ class DocumentRequest(object):
             uri = uri + '?%s' % urlencode({
                 'rev': self.options['rev']
             })
-        print uri
         return uri
 
     def __call__(self):
-        pass
+        return self.http_client.request(
+            self.uri,
+            self.method
+        )
 
 
 class Part(object):
