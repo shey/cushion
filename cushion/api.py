@@ -29,27 +29,18 @@ class RequestFactory(object):
         Build the request, returns callable which in turn
         returns the http response and the http content body
         """
-
-        # document ids are obtained programmatically and therefore
-        # must be passed in as a parameter, other requests will likely
-        # have a more generic interface
-        if options.has_key('id'):
-            document_request = DocumentRequest(
-                self.http_client,
-                uri_parts,
-                options
-            )
-            return document_request
-        else:
-            placeholder_request = PlaceHolderRequest()
-            return placeholder_request
+        document_request = DocumentRequest(
+            self.http_client,
+            uri_parts,
+            options
+        )
+        return document_request
 
 class PlaceHolderRequest(object):
     def __init__(self, *args):
         pass
     def __call__(self, *args):
         return ('a', 'b')
-
 
 class DocumentRequest(object):
     def __init__(
@@ -62,30 +53,28 @@ class DocumentRequest(object):
         self.uri_parts = uri_parts
         self.options = options
 
-    def __call__(self):
-        (method_part, uri_part) = self.uri_parts[1], self.uri_parts[0]
-        body = None
-        uri =  "/".join(
-            [
-                self.http_client.base_uri,
-                uri_part,
-                self.options['id']
-            ]
-        )
-        if method_part.upper() == "GET":
-            uri = uri + '?%s' % urlencode({
-                'revs': 'true'
-            })
-        elif method_part.upper() == "PUT":
-            del self.options['id']
-            body = self.options
+    @property
+    def method(self):
+        if(len(self.uri_parts)):
+            return self.uri_parts[0].upper()
 
-        return self.http_client.request(
-            uri,
-            headers={'Content-Type': 'application/json'},
-            method=method_part.upper(),
-            body=json.dumps(body)
-        )
+    @property
+    def uri(self):
+        elements = []
+        elements.append(self.http_client.base_uri)
+        for i in self.uri_parts[1:]:
+            elements.append(i)
+        elements.append(self.options.get('id', None))
+        uri = "/".join(elements)
+        if self.options.has_key('rev'):
+            uri = uri + '?%s' % urlencode({
+                'rev': self.options['rev']
+            })
+        print uri
+        return uri
+
+    def __call__(self):
+        pass
 
 
 class Part(object):
