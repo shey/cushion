@@ -1,12 +1,11 @@
 import httplib2
 import simplejson as json
 from urllib import urlencode
-from functools import partial
 
 
-class RequestBuilder(object):
+class RequestFactory(object):
     """
-        RequestBuilder is responsible for building
+        RequestFactory is responsible for building
         the http request based on the http method type
         and URL that is being accessed
     """
@@ -23,20 +22,54 @@ class RequestBuilder(object):
 
     def build(
         self,
-        method_part,
-        uri_part,
+        uri_parts,
         options
     ):
         """
         Build the request, returns callable which in turn
         returns the http response and the http content body
         """
+
+        # document ids are obtained programmatically and therefore
+        # must be passed in as a parameter, other requests will likely
+        # have a more generic interface
+        if options.has_key('id'):
+            document_request = DocumentRequest(
+                self.http_client,
+                uri_parts,
+                options
+            )
+            return document_request
+        else:
+            placeholder_request = PlaceHolderRequest()
+            return placeholder_request
+
+class PlaceHolderRequest(object):
+    def __init__(self, *args):
+        pass
+    def __call__(self, *args):
+        return ('a', 'b')
+
+
+class DocumentRequest(object):
+    def __init__(
+        self,
+        client,
+        uri_parts,
+        options
+    ):
+        self.http_client = client
+        self.uri_parts = uri_parts
+        self.options = options
+
+    def __call__(self):
+        (method_part, uri_part) = self.uri_parts[1], self.uri_parts[0]
         body = None
         uri =  "/".join(
             [
                 self.http_client.base_uri,
                 uri_part,
-                options['id']
+                self.options['id']
             ]
         )
         if method_part.upper() == "GET":
@@ -44,11 +77,10 @@ class RequestBuilder(object):
                 'revs': 'true'
             })
         elif method_part.upper() == "PUT":
-            del options['id']
-            body = options
+            del self.options['id']
+            body = self.options
 
-        return partial(
-            self.http_client.request,
+        return self.http_client.request(
             uri,
             headers={'Content-Type': 'application/json'},
             method=method_part.upper(),
@@ -60,19 +92,17 @@ class Part(object):
     def __init__(
         self,
         parts,
-        request_builder
+        request_factory
     ):
         self.parts = parts
-        self.request_builder = request_builder
+        self.request_factory = request_factory
 
     def __call__(self, **kwargs):
         return self._request(self.parts, kwargs)
 
-    def _request(self, method_parts, kwargs):
-        (method_part, uri_part) = method_parts[0], method_parts[1]
-        request = self.request_builder.build(
-            uri_part,
-            method_part,
+    def _request(self, uri_parts, kwargs):
+        request = self.request_factory.build(
+            uri_parts,
             kwargs
         )
         response, content = request()
@@ -81,7 +111,7 @@ class Part(object):
     def __getattr__(self, name):
         return Part(
             self.parts + [name],
-            self.request_builder
+            self.request_factory
         )
 
 
@@ -99,8 +129,8 @@ class Cushion(object):
         self.username = username
         self.password = password
 
-    def _get_request_builder(self):
-        return RequestBuilder(
+    def _get_request_factory(self):
+        return RequestFactory(
             self.username,
             self.password,
             self.base_uri
@@ -109,5 +139,5 @@ class Cushion(object):
     def __getattr__(self, name):
         return Part(
             [name],
-            self._get_request_builder()
+            self._get_request_factory()
         )
