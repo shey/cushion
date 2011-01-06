@@ -1,5 +1,5 @@
 from mock import Mock
-from cushion.api import RequestFactory
+from cushion.api import RequestFactory, DocumentRequest
 
 def create_request_factory(username, password, base_uri):
     factory = RequestFactory(
@@ -30,8 +30,8 @@ def test_request_returned_by_factory_is_callable():
     assert request.__class__.__name__ == "DocumentRequest"
     assert callable(request)
 
-def test_retrieve_a_document_with_document_id():
-    """Test that it can retrieve a document using document id"""
+def test_request_can_get_a_document_using_document():
+    """Test request can get a document using document id"""
     factory = create_request_factory(
         'username', 'password', 'base_uri'
     )
@@ -50,20 +50,22 @@ def test_retrieve_a_document_with_document_id():
         "GET"
     )
 
-def test_retrieve_a_document_with_document_id_and_revision_number():
-    """Test that it can retrieve a document with document id and rev number"""
-    factory = create_request_factory(
-        'username', 'password', 'base_uri'
+def test_request_can_get_a_document_using_document_id_and_rev_number():
+    """Test request can get a document using document id and rev number"""
+    http_client = Mock()
+    http_client.base_uri = "base_uri"
+    uri_parts = [
+        "get",
+        "database"
+    ]
+    options = dict(
+        id='some_doc_id',
+        rev='946B7D1C'
     )
-    request = factory.build(
-        [
-            "get",
-            "database"
-        ],
-        dict(
-            id='some_doc_id',
-            rev='946B7D1C'
-        )
+    request = DocumentRequest(
+        http_client,
+        uri_parts,
+        options
     )
     request()
     request.http_client.request.assert_called_with(
