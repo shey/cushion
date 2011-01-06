@@ -32,18 +32,22 @@ def test_request_returned_by_factory_is_callable():
 
 def test_request_can_get_a_document_using_document():
     """Test request can get a document using document id"""
-    factory = create_request_factory(
-        'username', 'password', 'base_uri'
+    http_client = Mock()
+    http_client.base_uri = "base_uri"
+    uri_parts = [
+        "get",
+        "database"
+    ]
+    options = dict(
+        id='some_doc_id'
     )
-    request = factory.build(
-        [
-            "get",
-            "database"
-        ],
-        dict(
-            id='some_doc_id'
-        )
+
+    request = DocumentRequest(
+        http_client,
+        uri_parts,
+        options
     )
+
     request()
     request.http_client.request.assert_called_with(
         "base_uri/database/some_doc_id",
