@@ -40,11 +40,13 @@ class DocumentRequest(object):
         self,
         client,
         uri_parts,
-        options
+        options=None
     ):
         self.http_client = client
         self.uri_parts = uri_parts
-        self.options = options
+        self.options = dict()
+        if options:
+            self.options = options
 
     @property
     def method(self):
@@ -57,14 +59,22 @@ class DocumentRequest(object):
         """Create the URI with the parameters"""
         elements = []
         elements.append(self.http_client.base_uri)
-        for i in self.uri_parts[1:]:
-            elements.append(i)
-        elements.append(self.options.get('id', None))
+
+        for part in self.uri_parts[1:]:
+            elements.append(part)
+
+        if not self.uri_parts[-1].endswith("all_docs"):
+            elements.append(self.options.get('id', ''))
+            del self.options['id']
+
         uri = "/".join(elements)
-        if self.options.has_key('rev'):
-            uri = uri + '?%s' % urlencode({
-                'rev': self.options['rev']
-            })
+        #this is so going to break with pust/posts
+        if len(self.options):
+            if self.options.has_key('startkey'):
+                #the start key has to be quoted
+                self.options['startkey'] = \
+                    "\"" + self.options['startkey'] + "\""
+            uri = uri + '?%s' % urlencode(self.options)
         return uri
 
     def __call__(self):
