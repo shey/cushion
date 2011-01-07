@@ -63,7 +63,7 @@ class DocumentRequest(object):
         for part in self.uri_parts[1:]:
             elements.append(part)
 
-        if not self.uri_parts[-1].endswith("all_docs"):
+        if not self.uri_parts[-1].endswith("_all_docs"):
             elements.append(self.options.get('id', ''))
             del self.options['id']
 
