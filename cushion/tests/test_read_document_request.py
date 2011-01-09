@@ -2,6 +2,8 @@ from mock import Mock
 from cushion.api import RequestBuilder, ReadDocumentRequest
 
 
+#test cases created using http://wiki.apache.org/couchdb/HTTP_Document_API
+
 def test_request_can_get_a_document_using_document():
     """Test that a request can get a document using document id"""
     http_client = Mock()
