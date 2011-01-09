@@ -67,12 +67,33 @@ class WriteDocumentRequest(object):
 
     @property
     def uri(self):
-        return ""
+        elements = []
+        for part in self.uri_parts[1:]:
+            elements.append(part)
+
+        if self.method == "PUT":
+            elements.append(self.options.get('id', ''))
+
+        print self.method
+        print elements
+        print self.options
+        return self.http_client.base_uri + "/" + "/".join(elements)
 
     def __call__(self):
+        #id is part of uri, should not be in body
+        if self.method == "PUT":
+            body = dict(
+                [
+                    (k,v) for k,v in  self.options.iteritems() if  k != 'id'
+                ]
+            )
+
+        body = json.dumps(body)
         return self.http_client.request(
             self.uri,
-            self.method
+            self.method,
+            headers={'Content-Type': 'application/json'},
+            body=body
         )
 
 

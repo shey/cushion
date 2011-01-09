@@ -11,10 +11,8 @@ def create_request_builder(username, password, base_uri):
     builder.http_client.base_uri = base_uri
     return builder
 
-#test cases created using http://wiki.apache.org/couchdb/HTTP_Document_API
-
 def test_builder_returns_read_document_request_for_get():
-    """Test that the document request is callable"""
+    """Test that get request returns  ReadDocumentRequest"""
     builder = create_request_builder(
         'username', 'password', 'base_uri'
     )
@@ -31,3 +29,34 @@ def test_builder_returns_read_document_request_for_get():
     assert request.method == "GET"
     assert callable(request)
 
+def test_builder_returns_write_document_request_for_put():
+    """Test that put request returns WriteDocumentRequest"""
+    builder = create_request_builder(
+        'username', 'password', 'base_uri'
+    )
+    request = builder.build(
+        [
+            "PUT",
+            "database"
+        ],
+        dict()
+    )
+    assert request.__class__.__name__ == "WriteDocumentRequest"
+    assert request.method == "PUT"
+    assert callable(request)
+
+def test_builder_returns_write_document_request_for_post():
+    """Test that post request returns WriteDocumentRequest"""
+    builder = create_request_builder(
+        'username', 'password', 'base_uri'
+    )
+    request = builder.build(
+        [
+            "POST",
+            "database"
+        ],
+        dict()
+    )
+    assert request.__class__.__name__ == "WriteDocumentRequest"
+    assert request.method == "POST"
+    assert callable(request)
