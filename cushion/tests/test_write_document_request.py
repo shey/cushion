@@ -15,6 +15,7 @@ def test_request_can_create_a_new_document_with_a_document_id():
     )
     request = WriteDocumentRequest(
         http_client,
+        "PUT",
         uri_parts,
         options
     )

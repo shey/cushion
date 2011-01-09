@@ -18,6 +18,7 @@ def test_request_can_get_a_document_using_document():
 
     request = ReadDocumentRequest(
         http_client,
+        "GET",
         uri_parts,
         options
     )
@@ -42,6 +43,7 @@ def test_request_can_get_a_document_using_document_id_and_rev_number():
     )
     request = ReadDocumentRequest(
         http_client,
+        "GET",
         uri_parts,
         options
     )
@@ -62,6 +64,7 @@ def test_request_can_get_all_documents():
     ]
     request = ReadDocumentRequest(
         http_client,
+        "GET",
         uri_parts
     )
     request()
@@ -86,6 +89,7 @@ def test_request_for_all_documents_includes_options():
     )
     request = ReadDocumentRequest(
         http_client,
+        "GET",
         uri_parts,
         options
     )

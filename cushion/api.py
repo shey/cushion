@@ -35,12 +35,14 @@ class RequestBuilder(object):
         if method == "GET":
             return ReadDocumentRequest(
                 self.http_client,
+                method,
                 uri_parts,
                 options
             )
         else:
             return WriteDocumentRequest(
                 self.http_client,
+                method,
                 uri_parts,
                 options
             )
@@ -50,20 +52,16 @@ class WriteDocumentRequest(object):
     def __init__(
         self,
         client,
+        method,
         uri_parts,
         options=None
     ):
         self.http_client = client
         self.uri_parts = uri_parts
+        self.method = method
         self.options = dict()
         if options:
             self.options = options
-
-    @property
-    def method(self):
-        """Returns http method, method will can not be GET"""
-        if(len(self.uri_parts)):
-            return self.uri_parts[0].upper()
 
     @property
     def uri(self):
@@ -101,19 +99,16 @@ class ReadDocumentRequest(object):
     def __init__(
         self,
         client,
+        method,
         uri_parts,
         options=None
     ):
         self.http_client = client
+        self.method = method
         self.uri_parts = uri_parts
         self.options = dict()
         if options:
             self.options = options
-
-    @property
-    def method(self):
-        """Returns http method"""
-        return "GET"
 
     @property
     def uri(self):
