@@ -81,6 +81,8 @@ class WriteDocumentRequest(object):
                     (k,v) for k,v in  self.options.iteritems() if  k != 'id'
                 ]
             )
+        else:
+            body = self.options
 
         body = json.dumps(body)
         return self.http_client.request(
