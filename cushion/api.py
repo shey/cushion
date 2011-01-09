@@ -1,11 +1,12 @@
 import httplib2
 from urllib import urlencode
+import simplejson as json
 
-class RequestFactory(object):
+class RequestBuilder(object):
     """
-        RequestFactory is responsible for building
-        the http request based on the http method type
-        and URL that is being accessed
+    RequestBuilder is responsible for building
+    the http request based on the http method type
+    and URL that is being accessed
     """
     def __init__(
         self,
@@ -27,15 +28,20 @@ class RequestFactory(object):
         Build the request, returns callable which in turn
         returns the http response and the http content body
         """
-        document_request = DocumentRequest(
-            self.http_client,
-            uri_parts,
-            options
-        )
-        return document_request
+
+        if(len(uri_parts)):
+            method = uri_parts[0].upper()
+
+        if method == "GET":
+            document_request = ReadDocumentRequest(
+                self.http_client,
+                uri_parts,
+                options
+            )
+            return document_request
 
 
-class DocumentRequest(object):
+class ReadDocumentRequest(object):
     def __init__(
         self,
         client,
@@ -50,24 +56,22 @@ class DocumentRequest(object):
 
     @property
     def method(self):
-        """return the http method"""
-        if(len(self.uri_parts)):
-            return self.uri_parts[0].upper()
+        return "GET"
 
     @property
     def uri(self):
         """Create the URI with the parameters"""
         elements = []
-        elements.append(self.http_client.base_uri)
 
         for part in self.uri_parts[1:]:
             elements.append(part)
 
+        #probably should check for all reserved words
         if not self.uri_parts[-1].endswith("_all_docs"):
             elements.append(self.options.get('id', ''))
             del self.options['id']
 
-        uri = "/".join(elements)
+        uri = self.http_client.base_uri + "/" + "/".join(elements)
         #this is so going to break with pust/posts
         if len(self.options):
             if self.options.has_key('startkey'):
@@ -75,29 +79,30 @@ class DocumentRequest(object):
                 self.options['startkey'] = \
                     "\"" + self.options['startkey'] + "\""
             uri = uri + '?%s' % urlencode(self.options)
+
         return uri
 
     def __call__(self):
-        return self.http_client.request(
-            self.uri,
-            self.method
-        )
+            return self.http_client.request(
+                self.uri,
+                "GET"
+            )
 
 
 class Part(object):
     def __init__(
         self,
         parts,
-        request_factory
+        request_builder
     ):
         self.parts = parts
-        self.request_factory = request_factory
+        self.request_builder = request_builder
 
     def __call__(self, **kwargs):
         return self._request(self.parts, kwargs)
 
     def _request(self, uri_parts, kwargs):
-        request = self.request_factory.build(
+        request = self.request_builder.build(
             uri_parts,
             kwargs
         )
@@ -107,13 +112,13 @@ class Part(object):
     def __getattr__(self, name):
         return Part(
             self.parts + [name],
-            self.request_factory
+            self.request_builder
         )
 
 
 class Cushion(object):
     """
-        Cushion is the primary interface to CouchDB
+    Cushion is the primary interface to CouchDB
     """
     def __init__(
         self,
@@ -125,8 +130,8 @@ class Cushion(object):
         self.username = username
         self.password = password
 
-    def _get_request_factory(self):
-        return RequestFactory(
+    def _get_request_builder(self):
+        return RequestBuilder(
             self.username,
             self.password,
             self.base_uri
@@ -135,5 +140,5 @@ class Cushion(object):
     def __getattr__(self, name):
         return Part(
             [name],
-            self._get_request_factory()
+            self._get_request_builder()
         )
