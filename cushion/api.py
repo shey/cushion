@@ -71,10 +71,6 @@ class WriteDocumentRequest(object):
 
         if self.method == "PUT":
             elements.append(self.options.get('id', ''))
-
-        print self.method
-        print elements
-        print self.options
         return self.http_client.base_uri + "/" + "/".join(elements)
 
     def __call__(self):
