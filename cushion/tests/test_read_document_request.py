@@ -9,7 +9,6 @@ def test_request_can_get_a_document_using_document():
     http_client = Mock()
     http_client.base_uri = "base_uri"
     uri_parts = [
-        "get",
         "database"
     ]
     options = dict(
@@ -34,7 +33,6 @@ def test_request_can_get_a_document_using_document_id_and_rev_number():
     http_client = Mock()
     http_client.base_uri = "base_uri"
     uri_parts = [
-        "get",
         "database"
     ]
     options = dict(
@@ -58,7 +56,6 @@ def test_request_can_get_all_documents():
     http_client = Mock()
     http_client.base_uri = "base_uri"
     uri_parts = [
-        "get",
         "database",
         "_all_docs"
     ]
@@ -78,7 +75,6 @@ def test_request_for_all_documents_includes_options():
     http_client = Mock()
     http_client.base_uri = "base_uri"
     uri_parts = [
-        "get",
         "database",
         "_all_docs"
     ]

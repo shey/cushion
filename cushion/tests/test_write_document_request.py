@@ -8,7 +8,6 @@ def test_request_can_create_a_new_document_with_a_document_id():
     http_client = Mock()
     http_client.base_uri = "base_uri"
     uri_parts = [
-        "PUT",
         "database"
     ]
     options = dict(
@@ -34,7 +33,6 @@ def test_request_create_a_new_document_when_document_id_not_provided_using_post(
     http_client = Mock()
     http_client.base_uri = "base_uri"
     uri_parts = [
-        "POST",
         "database"
     ]
     options = dict(

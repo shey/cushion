@@ -36,14 +36,14 @@ class RequestBuilder(object):
             return ReadDocumentRequest(
                 self.http_client,
                 method,
-                uri_parts,
+                uri_parts[1:],
                 options
             )
         else:
             return WriteDocumentRequest(
                 self.http_client,
                 method,
-                uri_parts,
+                uri_parts[1:],
                 options
             )
 
@@ -66,7 +66,7 @@ class WriteDocumentRequest(object):
     @property
     def uri(self):
         elements = []
-        for part in self.uri_parts[1:]:
+        for part in self.uri_parts:
             elements.append(part)
 
         if self.method == "PUT":
@@ -113,7 +113,7 @@ class ReadDocumentRequest(object):
         """Create the URI with the parameters"""
         elements = []
 
-        for part in self.uri_parts[1:]:
+        for part in self.uri_parts:
             elements.append(part)
 
         #probably should check for all reserved words
