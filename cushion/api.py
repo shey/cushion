@@ -183,7 +183,6 @@ class Part(object):
             kwargs
         )
         response, content = request()
-        print content
         status = int(response['status'])
         #couchdb returns a content body for 400 series errors
         if status < 200 or status >= 500:
