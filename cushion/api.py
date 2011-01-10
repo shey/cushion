@@ -2,6 +2,35 @@ import httplib2
 from urllib import urlencode
 import simplejson as json
 
+
+class Cushion(object):
+    """
+    Cushion is the primary interface to CouchDB
+    """
+    def __init__(
+        self,
+        base_uri,
+        username,
+        password
+    ):
+        self.base_uri = base_uri
+        self.username = username
+        self.password = password
+
+    def _get_request_builder(self):
+        return RequestBuilder(
+            self.username,
+            self.password,
+            self.base_uri
+        )
+
+    def __getattr__(self, name):
+        return Part(
+            [name],
+            self._get_request_builder()
+        )
+
+
 class RequestBuilder(object):
     """
     RequestBuilder is responsible for building
@@ -149,15 +178,18 @@ class Part(object):
         self.request_builder = request_builder
 
     def __call__(self, **kwargs):
-        return self._request(self.parts, kwargs)
-
-    def _request(self, uri_parts, kwargs):
         request = self.request_builder.build(
-            uri_parts,
+            self.parts,
             kwargs
         )
         response, content = request()
-        return content
+        print content
+        status = int(response['status'])
+        #couchdb returns a content body for 400 series errors
+        if status < 200 or status >= 500:
+            raise ValueError, "Invalid return code. %s" % (str(response),)
+        else:
+            return json.loads(content)
 
     def __getattr__(self, name):
         return Part(
@@ -165,30 +197,3 @@ class Part(object):
             self.request_builder
         )
 
-
-class Cushion(object):
-    """
-    Cushion is the primary interface to CouchDB
-    """
-    def __init__(
-        self,
-        base_uri,
-        username,
-        password
-    ):
-        self.base_uri = base_uri
-        self.username = username
-        self.password = password
-
-    def _get_request_builder(self):
-        return RequestBuilder(
-            self.username,
-            self.password,
-            self.base_uri
-        )
-
-    def __getattr__(self, name):
-        return Part(
-            [name],
-            self._get_request_builder()
-        )
