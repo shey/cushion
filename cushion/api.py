@@ -164,7 +164,8 @@ class ReadDocumentRequest(object):
     def __call__(self):
         return self.http_client.request(
             self.uri,
-            "GET"
+            "GET",
+            headers={"Accept": "application/json"}
         )
 
 

@@ -25,7 +25,8 @@ def test_request_can_get_a_document_using_document():
     request()
     request.http_client.request.assert_called_with(
         "base_uri/database/some_doc_id",
-        "GET"
+        "GET",
+        headers={'Accept': 'application/json'}
     )
 
 def test_request_can_get_a_document_using_document_id_and_rev_number():
@@ -48,7 +49,8 @@ def test_request_can_get_a_document_using_document_id_and_rev_number():
     request()
     request.http_client.request.assert_called_with(
         "base_uri/database/some_doc_id?rev=946B7D1C",
-        "GET"
+        "GET",
+        headers={'Accept': 'application/json'}
     )
 
 def test_request_can_get_all_documents():
@@ -67,7 +69,8 @@ def test_request_can_get_all_documents():
     request()
     request.http_client.request.assert_called_with(
         "base_uri/database/_all_docs",
-        "GET"
+        "GET",
+        headers={'Accept': 'application/json'}
     )
 
 def test_request_for_all_documents_includes_options():
@@ -92,5 +95,6 @@ def test_request_for_all_documents_includes_options():
     request()
     request.http_client.request.assert_called_with(
         "base_uri/database/_all_docs?startkey=%22doc2%22&descending=true&limit=2",
-        "GET"
+        "GET",
+        headers={'Accept': 'application/json'}
     )
