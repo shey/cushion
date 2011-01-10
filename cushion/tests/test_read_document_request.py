@@ -7,6 +7,7 @@ from cushion.api import RequestBuilder, ReadDocumentRequest
 def test_request_can_get_a_document_using_document():
     """Test that a request can get a document using document id"""
     http_client = Mock()
+    http_client.auth_header = dict()
     http_client.base_uri = "base_uri"
     uri_parts = [
         "database"
@@ -32,6 +33,7 @@ def test_request_can_get_a_document_using_document():
 def test_request_can_get_a_document_using_document_id_and_rev_number():
     """Test that request can get a document using document id and rev number"""
     http_client = Mock()
+    http_client.auth_header = dict()
     http_client.base_uri = "base_uri"
     uri_parts = [
         "database"
@@ -56,6 +58,7 @@ def test_request_can_get_a_document_using_document_id_and_rev_number():
 def test_request_can_get_all_documents():
     """Test that a request can get all documents from a database"""
     http_client = Mock()
+    http_client.auth_header = dict()
     http_client.base_uri = "base_uri"
     uri_parts = [
         "database",
@@ -76,6 +79,7 @@ def test_request_can_get_all_documents():
 def test_request_for_all_documents_includes_options():
     """Test that request for all documents includes filtering options"""
     http_client = Mock()
+    http_client.auth_header = dict()    
     http_client.base_uri = "base_uri"
     uri_parts = [
         "database",

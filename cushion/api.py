@@ -1,6 +1,7 @@
 import httplib2
-from urllib import urlencode
+import base64
 import simplejson as json
+from urllib import urlencode
 
 
 class Cushion(object):
@@ -10,8 +11,8 @@ class Cushion(object):
     def __init__(
         self,
         base_uri,
-        username,
-        password
+        username=None,
+        password=None
     ):
         self.base_uri = base_uri
         self.username = username
@@ -47,6 +48,18 @@ class RequestBuilder(object):
         self.password = password
         self.http_client = httplib2.Http()
         self.http_client.base_uri = base_uri
+        self.http_client.auth_header = self.create_auth_header()
+
+    def create_auth_header(self):
+        #don't know why add_credentials is failing but it's
+        #always a good idea to force auth headers with httplib2
+        if self.username and self.password:
+            print "shouldn't be here"
+            base64string = base64.b64encode('%s:%s' % (self.username, self.password))
+            header = "Basic %s" %(base64string,)
+            return dict(Authorization=header)
+        else:
+            return dict()
 
     def build(
         self,
@@ -113,12 +126,15 @@ class WriteDocumentRequest(object):
         else:
             body = self.options
 
-        body = json.dumps(body)
+        #headers
+        headers = {'Content-Type': 'application/json'}
+        headers.update(self.http_client.auth_header)
+
         return self.http_client.request(
             self.uri,
             self.method,
-            headers={'Content-Type': 'application/json'},
-            body=body
+            headers=headers,
+            body=json.dumps(body)
         )
 
 
@@ -162,10 +178,12 @@ class ReadDocumentRequest(object):
         return uri
 
     def __call__(self):
+        headers = {"Accept": "application/json"}
+        headers.update(self.http_client.auth_header)
         return self.http_client.request(
             self.uri,
             "GET",
-            headers={"Accept": "application/json"}
+            headers=headers
         )
 
 
