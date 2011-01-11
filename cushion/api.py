@@ -1,5 +1,6 @@
 import httplib2
 import base64
+import functools
 import simplejson as json
 from urllib import urlencode
 
@@ -47,14 +48,12 @@ class RequestBuilder(object):
         self.username = username
         self.password = password
         self.http_client = httplib2.Http()
-        self.http_client.base_uri = base_uri
-        self.http_client.auth_header = self.create_auth_header()
+        self.base_uri = base_uri
 
     def create_auth_header(self):
         #don't know why add_credentials is failing but it's
         #always a good idea to force auth headers with httplib2
         if self.username and self.password:
-            print "shouldn't be here"
             base64string = base64.b64encode('%s:%s' % (self.username, self.password))
             header = "Basic %s" %(base64string,)
             return dict(Authorization=header)
@@ -74,16 +73,28 @@ class RequestBuilder(object):
         if(len(uri_parts)):
             method = uri_parts[0].upper()
 
+        headers = self.create_auth_header()
+
         if method == "GET":
+            headers.update({"Accept": "application/json"})
+            make_request = functools.partial(self.http_client.request,
+                headers=headers
+            )
             return ReadDocumentRequest(
-                self.http_client,
+                make_request,
+                self.base_uri,
                 method,
                 uri_parts[1:],
                 options
             )
         else:
+            headers = {'Content-Type': 'application/json'}
+            make_request = functools.partial(self.http_client.request,
+                headers=headers
+            )
             return WriteDocumentRequest(
-                self.http_client,
+                make_request,
+                self.base_uri,
                 method,
                 uri_parts[1:],
                 options
@@ -93,12 +104,14 @@ class RequestBuilder(object):
 class WriteDocumentRequest(object):
     def __init__(
         self,
-        client,
+        requestor,
+        base_uri,
         method,
         uri_parts,
         options=None
     ):
-        self.http_client = client
+        self.base_uri = base_uri
+        self.requestor = requestor
         self.uri_parts = uri_parts
         self.method = method
         self.options = dict()
@@ -113,7 +126,7 @@ class WriteDocumentRequest(object):
 
         if self.method == "PUT":
             elements.append(self.options.get('id', ''))
-        return self.http_client.base_uri + "/" + "/".join(elements)
+        return self.base_uri + "/" + "/".join(elements)
 
     def __call__(self):
         #id is part of uri, should not be in body
@@ -126,14 +139,9 @@ class WriteDocumentRequest(object):
         else:
             body = self.options
 
-        #headers
-        headers = {'Content-Type': 'application/json'}
-        headers.update(self.http_client.auth_header)
-
-        return self.http_client.request(
+        return self.requestor(
             self.uri,
             self.method,
-            headers=headers,
             body=json.dumps(body)
         )
 
@@ -141,12 +149,14 @@ class WriteDocumentRequest(object):
 class ReadDocumentRequest(object):
     def __init__(
         self,
-        client,
+        requestor,
+        base_uri,
         method,
         uri_parts,
         options=None
     ):
-        self.http_client = client
+        self.base_uri = base_uri
+        self.requestor = requestor
         self.method = method
         self.uri_parts = uri_parts
         self.options = dict()
@@ -166,7 +176,7 @@ class ReadDocumentRequest(object):
             elements.append(self.options.get('id', ''))
             del self.options['id']
 
-        uri = self.http_client.base_uri + "/" + "/".join(elements)
+        uri = self.base_uri + "/" + "/".join(elements)
         #this is so going to break with pust/posts
         if len(self.options):
             if self.options.has_key('startkey'):
@@ -178,12 +188,9 @@ class ReadDocumentRequest(object):
         return uri
 
     def __call__(self):
-        headers = {"Accept": "application/json"}
-        headers.update(self.http_client.auth_header)
-        return self.http_client.request(
+        return self.requestor(
             self.uri,
-            "GET",
-            headers=headers
+            "GET"
         )
 
 
