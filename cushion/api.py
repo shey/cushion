@@ -54,8 +54,10 @@ class RequestBuilder(object):
         #don't know why add_credentials is failing but it's
         #always a good idea to force auth headers with httplib2
         if self.username and self.password:
-            base64string = base64.b64encode('%s:%s' % (self.username, self.password))
-            header = "Basic %s" %(base64string,)
+            base64string = base64.b64encode('%s:%s' % 
+                (self.username, self.password)
+            )
+            header = "Basic %s" % (base64string,)
             return dict(Authorization=header)
         else:
             return dict()
