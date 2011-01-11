@@ -1,12 +1,12 @@
 from mock import Mock
 from cushion.api import RequestBuilder, Part
 
-def test_calling_part_raises_exception_on_500_status_code():
-    """Test that Parts raises an exception with a 500 series error"""
+def test_calling_part_raises_exception_on_300_status_code():
+    """Test that Parts raises an exception with a 300 series error"""
     mock_request_builder = Mock()
     mock_request = Mock()
     mock_request_builder.build.return_value = mock_request
-    mock_request.return_value = (dict(status='500'), dict())
+    mock_request.return_value = (dict(status='300'), dict())
 
     part = Part(
         [],
@@ -16,7 +16,7 @@ def test_calling_part_raises_exception_on_500_status_code():
     try:
         part()
     except ValueError as error:
-        assert str(error) == "Invalid return code. {'status': '500'}"
+        assert str(error) == "Invalid return code. {'status': '300'}"
 
 
 def test_calling_part_parses_response_on_200_series_status_code():

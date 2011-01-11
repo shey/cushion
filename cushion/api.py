@@ -204,7 +204,7 @@ class Part(object):
         response, content = request()
         status = int(response['status'])
         #couchdb returns a content body for 400 series errors
-        if status < 200 or status >= 500:
+        if status < 200 or status >= 300:
             raise ValueError, "Invalid return code. %s" % (str(response),)
         else:
             return json.loads(content)
