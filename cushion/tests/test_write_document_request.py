@@ -7,6 +7,7 @@ def test_request_can_create_a_new_document_with_a_document_id():
     """Test that request can create a document with a document id"""
     http_client = Mock()
     uri_parts = [
+        'base_uri',
         "database"
     ]
     options = dict(
@@ -16,7 +17,6 @@ def test_request_can_create_a_new_document_with_a_document_id():
 
     request = WriteDocumentRequest(
         http_client,
-        'base_uri',
         "PUT",
         uri_parts,
         options
@@ -34,7 +34,8 @@ def test_request_create_a_new_document_when_document_id_not_provided_using_post(
     http_client = Mock()
     base_uri = ""
     uri_parts = [
-        "database"
+        'base_uri',
+        'database'
     ]
     options = dict(
         Body="I decided today that I like baseball.",
@@ -42,7 +43,6 @@ def test_request_create_a_new_document_when_document_id_not_provided_using_post(
 
     request = WriteDocumentRequest(
         http_client,
-        'base_uri',
         "POST",
         uri_parts,
         options

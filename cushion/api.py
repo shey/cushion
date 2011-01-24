@@ -76,6 +76,8 @@ class RequestBuilder(object):
             method = uri_parts[0].upper()
 
         headers = self.create_auth_header()
+        the_parts = [self.base_uri]
+        the_parts.extend(uri_parts[1:])
 
         if method == "GET":
             headers.update({"Accept": "application/json"})
@@ -84,9 +86,8 @@ class RequestBuilder(object):
             )
             return ReadDocumentRequest(
                 make_request,
-                self.base_uri,
                 method,
-                uri_parts[1:],
+                the_parts,
                 options
             )
         else:
@@ -96,9 +97,8 @@ class RequestBuilder(object):
             )
             return WriteDocumentRequest(
                 make_request,
-                self.base_uri,
                 method,
-                uri_parts[1:],
+                the_parts,
                 options
             )
 
@@ -107,12 +107,10 @@ class WriteDocumentRequest(object):
     def __init__(
         self,
         requestor,
-        base_uri,
         method,
         uri_parts,
         options=None
     ):
-        self.base_uri = base_uri
         self.requestor = requestor
         self.uri_parts = uri_parts
         self.method = method
@@ -128,7 +126,7 @@ class WriteDocumentRequest(object):
 
         if self.method == "PUT":
             elements.append(self.options.get('id', ''))
-        return self.base_uri + "/" + "/".join(elements)
+        return "/".join(elements)
 
     def __call__(self):
         #id is part of uri, should not be in body
@@ -152,12 +150,10 @@ class ReadDocumentRequest(object):
     def __init__(
         self,
         requestor,
-        base_uri,
         method,
         uri_parts,
         options=None
     ):
-        self.base_uri = base_uri
         self.requestor = requestor
         self.method = method
         self.uri_parts = uri_parts
@@ -178,7 +174,7 @@ class ReadDocumentRequest(object):
             elements.append(self.options.get('id', ''))
             del self.options['id']
 
-        uri = self.base_uri + "/" + "/".join(elements)
+        uri = "/".join(elements)
         #this is so going to break with pust/posts
         if len(self.options):
             if self.options.has_key('startkey'):
