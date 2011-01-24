@@ -126,13 +126,19 @@ class WriteDocumentRequest(object):
         for part in self.uri_parts:
             elements.append(part)
 
-        if self.method == "PUT":
+        if self.method in ['PUT', 'DELETE']:
             elements.append(self.options.get('id', ''))
-        return "/".join(elements)
+
+        uri =  "/".join(elements)
+
+        if self.method == 'DELETE':
+            return uri + '?%s' % urlencode(self.options)
+        else:
+            return uri
 
     def __call__(self):
         #id is part of uri, should not be in body
-        if self.method == "PUT":
+        if self.method == "PUT" or self.method == 'DELETE':
             body = dict(
                 [
                     (k,v) for k,v in  self.options.iteritems() if  k != 'id'
