@@ -171,8 +171,8 @@ class ReadDocumentRequest(object):
         for part in self.uri_parts:
             elements.append(part)
 
-        #probably should check for all reserved words
-        if not self.uri_parts[-1].endswith("_all_docs"):
+        #reserved words in couchdb start with '_'
+        if not self.uri_parts[-1].startswith("_"):
             elements.append(self.options.get('id', ''))
             del self.options['id']
 

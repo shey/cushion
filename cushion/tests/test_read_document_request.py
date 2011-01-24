@@ -98,3 +98,25 @@ def test_request_for_all_documents_includes_options():
         "base_uri/database/_all_docs?startkey=%22doc2%22&descending=true&limit=2",
         "GET"
     )
+
+def test_request_can_get_all_docs_by_sequence():
+    """Test that a request can get all documents from a database by sequence"""
+    http_client = Mock()
+    http_client.auth_header = dict()
+    http_client.base_uri = "base_uri"
+    uri_parts = [
+        "base_uri",
+        "database",
+        "_all_docs_by_seq"
+    ]
+
+    request = ReadDocumentRequest(
+        http_client,
+        "GET",
+        uri_parts
+    )
+    request()
+    request.requestor.assert_called_with(
+        "base_uri/database/_all_docs_by_seq",
+        "GET"
+    )
