@@ -5,7 +5,8 @@ def create_request_builder(username, password, base_uri):
     builder = RequestBuilder(
         username,
         password,
-        base_uri
+        base_uri,
+        5 #timeout
     )
     builder.http_client = Mock()
     builder.http_client.base_uri = base_uri
@@ -69,13 +70,14 @@ def test_request_builder_create_auth_header_when_credentials_are_present():
     builder = RequestBuilder(
         "admin1",
         "admin1",
-        "base_uri"
+        "base_uri",
+        None
     )
     header = builder.create_auth_header()
     assert header == expected
 
 def test_request_builder_creates_empty_header_when_credentials_are_empty():
     """Test that create auth header generates empty header when creds are empty"""
-    builder = RequestBuilder(None, None, "base_uri")
+    builder = RequestBuilder(None, None, "base_uri", None)
     header = builder.create_auth_header()
     assert header == dict()

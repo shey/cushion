@@ -12,18 +12,19 @@ class Cushion(object):
     def __init__(
         self,
         base_uri,
-        username=None,
-        password=None
+        **kwargs
     ):
         self.base_uri = base_uri
-        self.username = username
-        self.password = password
+        self.username = kwargs.get('username', None)
+        self.password = kwargs.get('password', None)
+        self.timeout = kwargs.get('timeout', None)
 
     def _get_request_builder(self):
         return RequestBuilder(
             self.username,
             self.password,
-            self.base_uri
+            self.base_uri,
+            self.timeout
         )
 
     def __getattr__(self, name):
@@ -43,11 +44,12 @@ class RequestBuilder(object):
         self,
         username,
         password,
-        base_uri
+        base_uri,
+        timeout
     ):
         self.username = username
         self.password = password
-        self.http_client = httplib2.Http()
+        self.http_client = httplib2.Http(timeout=timeout)
         self.base_uri = base_uri
 
     def create_auth_header(self):
