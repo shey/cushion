@@ -5,7 +5,7 @@ This is a Python wrapper for the [CouchDB Document API](http://wiki.apache.org/c
 For example,
 
 	from cushion import api
-	
+
     c = api.Cushion("http://localhost:5984/albums",
 		username='abc',
 		password='xyz'
