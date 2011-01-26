@@ -120,3 +120,27 @@ def test_request_can_get_all_docs_by_sequence():
         "base_uri/database/_all_docs_by_seq",
         "GET"
     )
+
+def test_request_can_get_a_document_with_revision_numbers_using_document():
+    """Test that request can get document with revision numbers using document id"""
+    http_client = Mock()
+    uri_parts = [
+        'base_uri',
+        "database"
+    ]
+    options = dict(
+        id='some_doc_id',
+        revs='true'
+    )
+    request = ReadDocumentRequest(
+        http_client,
+        "GET",
+        uri_parts,
+        options
+    )
+    request()
+    request.requestor.assert_called_with(
+        "base_uri/database/some_doc_id?revs=true",
+        "GET"
+    )
+
