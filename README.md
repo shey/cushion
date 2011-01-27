@@ -1,8 +1,8 @@
-# Cushion: a simple CouchDB Document API wrapper
+# Cushion: a simple CouchDB wrapper
 
-This is a Python wrapper for the [CouchDB Document API](http://wiki.apache.org/couchdb/HTTP_Document_API). It was created primarily as an exercise to learn CouchDB's document API.  The library attempts to expose a very simple interface that closely resembles REST.
+Cushion is a very thin python wrapper around [CouchDB's Document API](http://wiki.apache.org/couchdb/HTTP_Document_API). It's interface closely mimics REST.  It was created primarily as an exercise to learn CouchDB's API, Cushion is not an object mapper, it doesn’t enforce ‘OOP’, and if you found it difficult to get started with CouchDB using other libraries then you maybe interested in Cushion.
 
-For example,
+To connect to CouchDB:
 
 	from cushion import api
 
@@ -10,6 +10,9 @@ For example,
 		username='abc',
 		password='xyz'
 	)
+
+Issuing:
+
 	c.get(id='1b0c7bb19b1bbacf7f567bf379000d9c')
 
 returns the following JSON object:
